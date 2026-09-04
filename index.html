@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Budget Core</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="app-shell">
+        
+        <!-- ==================== TAB 1: SUMMARY DASHBOARD ==================== -->
+        <div id="tabContentSummary" class="tab-page active-page">
+            <div class="spreadsheet-view">
+                <div class="app-main-banner text-center">
+                    <h2 class="app-title">Personal Budget Tracker</h2>
+                </div>
+
+                <div class="dashboard-body">
+                    <div class="matrix-card-grid">
+                        <div class="excel-card income-accent">
+                            <span class="card-title">Monthly Income</span>
+                            <div id="sumIncome" class="card-val">₹0.00</div>
+                        </div>
+                        <div class="excel-card expense-accent">
+                            <span class="card-title">Monthly Expenses</span>
+                            <div id="sumExpenses" class="card-val">₹0.00</div>
+                        </div>
+                        <div class="excel-card savings-accent">
+                            <span class="card-title">Monthly Savings</span>
+                            <div id="sumSavings" class="card-val">₹0.00</div>
+                        </div>
+                        <div class="excel-card cash-highlight">
+                            <span class="card-title">Cash Balance</span>
+                            <div id="sumCashBalance" class="card-val font-large">₹0.00</div>
+                        </div>
+                    </div>
+
+                    <button onclick="downloadExcelSpreadsheet()" class="btn-sheet-submit btn-green-bg w-full mt-4" style="font-size: 13px; padding: 12px; font-weight: 700;">📥 Export Ledger Sheets (.CSV)</button>
+
+                    <div class="side-panel-box mt-4">
+                        <h3 class="panel-header">⚡ Core Financial Insights</h3>
+                        <p id="percentageSpentText" class="ratio-highlight">Percentage of Income Spent: 0%</p>
+                    </div>
+                    
+                    <button onclick="clearApplicationState()" class="btn-clear-db mt-5">Reset Tracker Data</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 2: SAVINGS ==================== -->
+        <div id="tabContentSavings" class="tab-page">
+            <div class="excel-blue-banner">Personal Budget Tracker</div>
+            <div class="dashboard-body">
+                <h3 class="section-sub-label text-blue">🔵 Savings & Investments Ledger</h3>
+                <div class="input-entry-module">
+                    <input type="text" id="savSource" class="sheet-input w-full mb-3" placeholder="Savings Destination (e.g. PPF, Mutual Funds)">
+                    <div class="flex-row">
+                        <input type="date" id="savDate" class="sheet-input w-half">
+                        <input type="number" id="savAmount" class="sheet-input w-half" placeholder="Amount (₹)">
+                        <button onclick="commitRowItem('savings')" class="btn-sheet-submit btn-blue-bg">+</button>
+                    </div>
+                </div>
+                <div class="sheet-grid-container">
+                    <table class="grid-sheet">
+                        <thead>
+                            <tr><th style="width: 60px;">Srno.</th><th>Savings Source</th><th>Date</th><th class="txt-right">Amount</th><th style="width: 40px;"></th></tr>
+                        </thead>
+                        <tbody id="savingsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 3: EXPENSES ==================== -->
+        <div id="tabContentExpenses" class="tab-page">
+            <div class="excel-blue-banner">Personal Budget Tracker</div>
+            <div class="dashboard-body">
+                <h3 class="section-sub-label text-red">🔴 Outflow Expenses Ledger</h3>
+                
+                <div class="input-entry-module" style="border-left: 4px solid #ea580c; background-color: #fff7ed; margin-bottom: 16px;">
+                    <span class="card-title" style="font-size: 11px; font-weight: 700; color: #c65911; text-transform: uppercase; display: block; margin-bottom: 6px;">📂 Semi-Automated Bank Statement Importer</span>
+                    <input type="file" id="bankStatementFile" accept=".csv" class="sheet-input w-full" style="background-color: #ffffff; padding: 8px;" onchange="importBankStatementFile(event)">
+                </div>
+
+                <div class="input-entry-module">
+                    <div class="flex-row mb-3">
+                        <input type="text" id="expSource" class="sheet-input w-half" placeholder="Item (e.g. Cig, House Rent)">
+                        <input type="text" id="expCategory" class="sheet-input w-half" placeholder="Category (e.g. Food, Rent, Misc)">
+                    </div>
+                    <div class="flex-row">
+                        <input type="date" id="expDate" class="sheet-input w-half">
+                        <input type="number" id="expAmount" class="sheet-input w-half" placeholder="Amount (₹)">
+                        <button onclick="commitRowItem('expense')" class="btn-sheet-submit btn-red-bg">+</button>
+                    </div>
+                </div>
+                <div class="sheet-grid-container">
+                    <table class="grid-sheet">
+                        <thead>
+                            <tr><th style="width: 50px;">Srno.</th><th>Expense Source</th><th>Category</th><th>Date</th><th>Day</th><th class="txt-right">Amount</th><th>Month</th><th style="width: 40px;"></th></tr>
+                        </thead>
+                        <tbody id="expensesTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 4: INCOME ==================== -->
+        <div id="tabContentIncome" class="tab-page">
+            <div class="excel-blue-banner">Personal Budget Tracker</div>
+            <div class="dashboard-body">
+                <h3 class="section-sub-label text-green">💰 Revenue Income Ledger</h3>
+                <div class="input-entry-module">
+                    <input type="text" id="incSource" class="sheet-input w-full mb-3" placeholder="Income Source (e.g. Salary, Opening Balance)">
+                    <div class="flex-row">
+                        <input type="date" id="incDate" class="sheet-input w-half">
+                        <input type="number" id="incAmount" class="sheet-input w-half" placeholder="Amount (₹)">
+                        <button onclick="commitRowItem('income')" class="btn-sheet-submit btn-green-bg">+</button>
+                    </div>
+                </div>
+                <div class="sheet-grid-container">
+                    <table class="grid-sheet">
+                        <thead>
+                            <tr><th style="width: 60px;">Srno.</th><th>Income Source</th><th>Date</th><th class="txt-right">Amount</th><th style="width: 40px;"></th></tr>
+                        </thead>
+                        <tbody id="incomeTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="excel-tab-footer">
+            <button id="navBtnSummary" onclick="navigateToTab('Summary')" class="tab-trigger active-tab">📊 Summary</button>
+            <button id="navBtnSavings" onclick="navigateToTab('Savings')" class="tab-trigger">🔵 Savings</button>
+            <button id="navBtnExpenses" onclick="navigateToTab('Expenses')" class="tab-trigger">🔴 Expenses</button>
+            <button id="navBtnIncome" onclick="navigateToTab('Income')" class="tab-trigger">💰 Income</button>
+        </div>
+
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

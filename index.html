@@ -293,6 +293,52 @@
         }
     }
 
+    // 1. Staging Engine: Tracks which checkboxes are active on your dashboard screen
+    function handleChecklistCheckboxClick(label, category, amount, checkboxElement) {
+        // Establish standard ISO timestamp formatting string parameters
+        const currentDateString = new Date().toISOString().split('T')[0];
+
+        if (checkboxElement.checked) {
+            // Stage item inside a temporary array container if checked
+            temporaryCheckedItems.push({ 
+                source: label, 
+                category: category, 
+                date: currentDateString, 
+                amount: amount 
+            });
+        } else {
+            // Drop row cleanly from your temporary array container if unchecked
+            temporaryCheckedItems = temporaryCheckedItems.filter(item => item.source !== label);
+        }
+    }
+
+    // 2. Batch Execution Engine: Transmits all staged checklist rows straight to your Google Sheet
+    function addSelectedChecklistTransactions() {
+        if (temporaryCheckedItems.length === 0) {
+            alert("Please select at least one expense checkbox first!");
+            return;
+        }
+        
+        // Loop through your checked row data items and deploy outbound messages
+        temporaryCheckedItems.forEach(item => {
+            // Pushes entry to your local device view screen preview table array
+            state.expense.push(item);
+            
+            // Fires the dynamic sync pipeline targeting your case-sensitive "Expense" tab!
+            syncRowToGoogleSheets("Expense", item);
+        });
+        
+        // Clear out staging area fields so rows don't get appended twice accidentally
+        temporaryCheckedItems = []; 
+        
+        // Recompute metrics cards and redraw grid tables on the fly
+        updateMetricsAndTables();
+        
+        // Reset check boxes on your screen UI cleanly
+        renderChecklist(); 
+    }
+
+
     renderChecklist();
     updateMetricsAndTables();
 </script>

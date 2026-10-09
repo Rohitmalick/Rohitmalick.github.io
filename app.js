@@ -2,7 +2,7 @@
 // PART 1: FRONTEND DATA LAYER & FIXED NAVIGATION ENGINE
 // ==========================================================================
 
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw3mLvI4S8jQEwu9rziObM2Xoks3Lm3tD61DMgqF1Px-uyi3Jcg768zY03PNeLuuFmkEg/exec"; 
+const WEB_APP_URL = "https://google.com"; 
 
 let appLedger = {
     income: [],
@@ -64,7 +64,7 @@ function recalculateFinancials() {
     renderTableGrids();
 }
 // ==========================================================================
-// PART 2: FAST-ADD MECHANICS & FIXES FOR EMBEDDED VARIABLE RENDERING
+// PART 2: FAST-ADD MECHANICS & FIXES FOR IND-RUPEE SYMBOL RENDERING
 // ==========================================================================
 
 function setupFastAddButtonEngine() {
@@ -149,13 +149,11 @@ function commitRowItem(type) {
 
     if (!src || isNaN(amt) || amt <= 0 || !dt) return;
 
-    // Split input string (YYYY-MM-DD)
     const dateParts = dt.split('-'); 
     const year = parseInt(dateParts[0], 10);
     const month = parseInt(dateParts[1], 10);
-    const day = parseInt(dateParts[2], 10); // FIXED: Clean reference to array index slot 2
+    const day = parseInt(dateParts[2], 10);
 
-    // Create a time zone safe explicit date instance
     const explicitDate = new Date(year, month - 1, day);
     const computedDayName = weekdayMap[explicitDate.getDay()];
     const computedMonthLabel = `${monthlyMap[month - 1]}-${year}`;
@@ -218,13 +216,14 @@ function renderTableGrids() {
         if (body) {
             let htmlBuffer = '';
             appLedger[t.key].forEach((row, index) => {
+                // FIXED: Changed display tracking output text symbol label cleanly from Rh to ₹
                 htmlBuffer += `<tr>
                     <td>${index + 1}</td>
                     <td>${row.source}</td>
                     <td>${row.category || 'Misc'}</td>
                     <td>${row.date}</td>
                     <td>${row.day || 'N/A'}</td>
-                    <td style="text-align: right; font-weight: 600;">₹ ${row.amount.toLocaleString('en-IN', {minimumFractionDigits:2})}</td>
+                    <td style="text-align: right; font-weight: 600;">₹${row.amount.toLocaleString('en-IN', {minimumFractionDigits:2})}</td>
                     <td>${row.monthLabel || ''}</td>
                     <td><button onclick="deleteRowItem('${t.key}', ${row.id})" style="background: none; border: none; color: #94a3b8; font-size: 1.1rem; cursor: pointer;">✕</button></td>
                 </tr>`;

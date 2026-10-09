@@ -1,236 +1,237 @@
 /* ==========================================================================
-   PERSONAL BUDGET TRACKER - POWER BI PREMIUM DARK MATRIX THEME
+   PERSONAL BUDGET TRACKER MASTER STYLESHEET
    ========================================================================== */
 
 :root {
     --primary: #2563eb;
-    --success: #00E676; /* Neon Green Power BI positive metric indicator */
-    --danger: #FF5252;  /* Coral Red negative tracking metric */
-    --warning: #00E5FF; /* Cyan Teal savings highlight */
-    --background: #1A1C1E; /* Application backdrop fill canvas */
-    --surface: #24272B;    /* Lighter widget container slate tiles */
-    --text-main: #FFFFFF;
-    --text-muted: #A0A5AB;
-    --border: #2D3136;
+    --success: #10b981;
+    --danger: #ef4444;
+    --background: #f8fafc;
+    --surface: #ffffff;
+    --text: #1e293b;
+    --border: #e2e8f0;
 }
 
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 body {
     background-color: var(--background);
-    color: var(--text-main);
-    padding: 24px;
-    line-height: 1.6;
+    color: var(--text);
+    padding: 20px;
+    line-height: 1.5;
 }
 
 .app-container {
-    max-width: 1300px;
+    max-width: 1200px;
     margin: 0 auto;
-    background: var(--background);
-    padding: 0;
+    background: var(--surface);
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
 }
 
-/* 🌐 Modern Application Title Bar Style Layout */
+/* 🌐 Header Navigation Bar layout */
 .header-nav {
-    max-width: 1300px;
-    margin: 0 auto 24px auto;
+    max-width: 1200px;
+    margin: 0 auto 20px auto;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: var(--surface);
+    background: #cbd5e1;
     padding: 16px 24px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-}
-
-.header-nav h2 {
-    font-size: 1.25rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    color: var(--text-main);
+    border-radius: 12px;
 }
 
 .nav-buttons {
     display: flex;
-    gap: 8px;
+    gap: 10px;
 }
 
+/* 📱 Dynamic Tab Trigger Styles */
 .tab-trigger {
-    background: #1E2124;
+    background: var(--surface);
     border: 1px solid var(--border);
-    padding: 8px 18px;
-    border-radius: 4px;
+    padding: 8px 16px;
+    border-radius: 6px;
     cursor: pointer;
     font-weight: 600;
-    font-size: 0.85rem;
-    color: var(--text-muted);
+    color: var(--text);
     transition: all 0.2s ease;
 }
 
 .tab-trigger:hover {
-    background: var(--border);
-    color: var(--text-main);
+    background: #f1f5f9;
 }
 
 .tab-trigger.active-tab {
-    background: var(--primary) !important;
-    border-color: var(--primary) !important;
-    color: white !important;
+    background: #fef08a; /* Bright yellow active tracker element from your UI layout */
+    border-color: #eab308;
 }
 
-/* 📊 Financial Matrix Tiles Shelf Layout */
+/* 📱 Tab Visibility Controllers */
+.tab-page {
+    display: none;
+}
+
+.tab-page.active-page {
+    display: block;
+}
+
+/* 📊 Financial Metric Summary Dashboard Widgets */
 .metrics-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 16px;
-    margin-bottom: 24px;
+    margin-top: 12px;
 }
 
 .metric-card {
     background: var(--surface);
     padding: 20px;
-    border-radius: 6px;
-    border: 1px solid var(--border);
-    position: relative;
-    overflow: hidden;
+    border-radius: 10px;
+    border-left: 5px solid #cbd5e1;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
 }
 
-/* Structural top subtle neon indicators matching financial logic status */
-.metric-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: var(--text-muted);
-}
-
-.income-card::before { background: var(--success); }
-.expense-card::before { background: var(--danger); }
-.savings-card::before { background: var(--warning); }
-.balance-card::before { background: #FFFFFF; }
+.income-card { border-left-color: var(--success); background: #f0fdf4; }
+.expense-card { border-left-color: var(--danger); background: #fdf2f8; }
+.savings-card { border-left-color: var(--primary); background: #eff6ff; }
+.balance-card { border-left-color: #f97316; background: #fff7ed; }
 
 .metric-card small {
     font-size: 0.75rem;
     font-weight: 700;
-    color: var(--text-muted);
+    color: #64748b;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.05em;
 }
 
 .metric-card h2 {
-    font-size: 2rem;
-    margin-top: 8px;
+    font-size: 1.75rem;
+    margin-top: 4px;
     font-weight: 700;
-    font-family: 'Oswald', sans-serif;
 }
 
-.income-card h2 { color: var(--success); }
-.expense-card h2 { color: var(--danger); }
-.savings-card h2 { color: var(--warning); }
-.balance-card h2 { color: #FFFFFF; }
-
-/* 📈 Interactive Canvas Row Layout Layout */
-.visuals-row {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 16px;
-    margin-bottom: 24px;
+.ratio-bar-text {
+    margin-top: 12px;
+    font-size: 0.9rem;
+    color: #64748b;
+    font-weight: 500;
 }
 
-@media (max-width: 900px) {
-    .visuals-row { grid-template-columns: 1fr; }
-}
-
-.chart-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 20px;
-    border-radius: 6px;
-    min-height: 320px;
-}
-
-/* 🗓️ Selection Toggles Fast-Add Module */
+/* 🗓️ Fast Add Checkbox Toggles System Layout */
 .checkbox-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 12px;
-    margin: 20px 0;
+    margin: 16px 0;
 }
 
 .check-card {
     background: var(--surface);
     border: 1px solid var(--border);
     padding: 16px;
-    border-radius: 6px;
+    border-radius: 8px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.02);
 }
 
-.check-card strong { color: var(--text-main); font-weight: 600; }
-.txt-red { color: var(--danger); font-size: 0.9rem; font-weight: 700; margin-top: 2px;}
-
-/* 📋 Dashboard Table Layouts Configuration */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 16px;
-    background: var(--surface);
-    border-radius: 6px;
-    overflow: hidden;
-    border: 1px solid var(--border);
+.check-card label {
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
 }
 
-th {
-    background: #1E2124;
-    color: var(--text-muted);
-    text-align: left;
-    padding: 14px 16px;
-    font-size: 0.8rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    border-bottom: 2px solid var(--border);
+.txt-red { color: var(--danger); font-size: 0.85rem; margin-top: 2px;}
+
+.check-card input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
 }
 
-td {
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--border);
-    font-size: 0.9rem;
-    color: #E2E8F0;
-}
-
-tr:hover { background: #2D3136; }
-.txt-right { text-align: right; font-weight: 700; }
-
-/* Form Control Parameters Elements Override */
+/* ➕ Manual Form Entry Grids */
 .form-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) auto;
     gap: 12px;
-    background: var(--surface);
-    padding: 20px;
-    border-radius: 6px;
-    margin: 20px 0;
+    background: #f8fafc;
+    padding: 16px;
+    border-radius: 8px;
+    margin: 16px 0;
     border: 1px solid var(--border);
 }
 
 input, select {
-    background: #1E2124;
-    color: white;
-    border: 1px solid var(--border);
+    width: 100%;
     padding: 10px 14px;
-    border-radius: 4px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    outline: none;
+    background: var(--surface);
 }
-input:focus, select:focus { border-color: var(--primary); }
 
-.btn-primary { background: var(--primary); color: white; border: none; font-weight: 600; padding: 10px 24px; border-radius: 4px; cursor: pointer;}
-.btn-success { background: #059669; color: white; border: none; font-weight: 700; padding: 16px; border-radius: 6px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em;}
-.btn-success:hover { background: var(--success); }
+input:focus, select:focus {
+    border-color: var(--primary);
+}
+
+/* Modernized Tracking Button Elements */
+.btn-primary { background: #2563eb; color: white; border: none; font-weight: 600; padding: 10px 24px; border-radius: 6px; cursor: pointer;}
+.btn-primary:hover { background: #1d4ed8; }
+.btn-success { background: #10b981; color: white; border: none; font-weight: 600; padding: 14px; border-radius: 8px; cursor: pointer; width: 100%; font-size: 1rem; text-transform: uppercase;}
+.btn-success:hover { background: #059669; }
+.btn-success:disabled, .btn-primary:disabled { background: #94a3b8; cursor: not-allowed; }
+
+/* 📊 Financial Position Display Data Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+}
+
+th {
+    background: #f1f5f9;
+    color: #475569;
+    text-align: left;
+    padding: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-bottom: 2px solid var(--border);
+}
+
+td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.95rem;
+}
+
+tr:hover { background: #f8fafc; }
+.txt-right { text-align: right; font-weight: 600; }
+
+.del-cross {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+.del-cross:hover { color: var(--danger); }
+
+/* 📂 Offline Statement Parsing Block Container */
+.import-block {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 2px dashed var(--border);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+.import-block input { width: auto; border: none; padding: 0; background: none;}

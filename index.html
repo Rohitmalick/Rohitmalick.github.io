@@ -4,81 +4,234 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Personal Budget Tracker</title>
-    <!-- Links your external style.css sheet so fonts and layouts render instantly -->
-    <link rel="stylesheet" href="style.css">
+    
+    <!-- 🎨 EMBEDDED INTERNAL MASTER STYLESHEET LAYER -->
+    <style>
+        :root {
+            --primary: #2563eb;
+            --success: #10b981;
+            --danger: #ef4444;
+            --background: #f8fafc;
+            --surface: #ffffff;
+            --text: #1e293b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            padding: 20px;
+            line-height: 1.5;
+        }
+
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--surface);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+        }
+
+        .header-nav {
+            max-width: 1200px;
+            margin: 0 auto 20px auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #cbd5e1;
+            padding: 16px 24px;
+            border-radius: 12px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .tab-trigger {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text);
+            transition: all 0.2s ease;
+        }
+
+        .tab-trigger:hover {
+            background: #f1f5f9;
+        }
+
+        .tab-trigger.active-tab {
+            background: #fef08a;
+            border-color: #eab308;
+        }
+
+        .tab-page {
+            display: none;
+        }
+
+        .tab-page.active-page {
+            display: block;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-top: 12px;
+        }
+
+        .metric-card {
+            background: var(--surface);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #cbd5e1;
+            box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
+        }
+
+        .income-card { border-left-color: var(--success); background: #f0fdf4; }
+        .expense-card { border-left-color: var(--danger); background: #fdf2f8; }
+        .savings-card { border-left-color: var(--primary); background: #eff6ff; }
+        .balance-card { border-left-color: #f97316; background: #fff7ed; }
+
+        .metric-card small {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .metric-card h2 {
+            font-size: 1.75rem;
+            margin-top: 4px;
+            font-weight: 700;
+        }
+
+        .ratio-bar-text {
+            margin-top: 12px;
+            font-size: 0.9rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .check-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 16px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 2px rgb(0 0 0 / 0.02);
+        }
+
+        .check-card label {
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .txt-red { color: var(--danger); font-size: 0.85rem; margin-top: 2px;}
+
+        .check-card input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) auto;
+            gap: 12px;
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+            border: 1px solid var(--border);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            outline: none;
+            background: var(--surface);
+        }
+
+        .btn-primary { background: #2563eb; color: white; border: none; font-weight: 600; padding: 10px 24px; border-radius: 6px; cursor: pointer;}
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-success { background: #10b981; color: white; border: none; font-weight: 600; padding: 14px; border-radius: 8px; cursor: pointer; width: 100%; font-size: 1rem; text-transform: uppercase;}
+        .btn-success:hover { background: #059669; }
+        .btn-success:disabled, .btn-primary:disabled { background: #94a3b8; cursor: not-allowed; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        th {
+            background: #f1f5f9;
+            color: #475569;
+            text-align: left;
+            padding: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-bottom: 2px solid var(--border);
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.95rem;
+        }
+
+        tr:hover { background: #f8fafc; }
+        .txt-right { text-align: right; font-weight: 600; }
+
+        .del-cross {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+        .del-cross:hover { color: var(--danger); }
+
+        .import-block {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px dashed var(--border);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .import-block input { width: auto; border: none; padding: 0; background: none;}
+    </style>
 </head>
 <body>
-
-    <!-- 🌐 Core Application Header & Tab Switch Toggles Menu -->
-    <div class="header-nav">
-        <h2>Personal Budget Tracker</h2>
-        <div class="nav-buttons">
-            <button id="navBtnDashboard" class="tab-trigger active-tab" onclick="navigateToTab('Dashboard')">Summary Dashboard</button>
-            <button id="navBtnincome" class="tab-trigger" onclick="navigateToTab('income')">Income Sheet</button>
-            <button id="navBtnexpense" class="tab-trigger" onclick="navigateToTab('expense')">Expense Sheet</button>
-            <button id="navBtnsavings" class="tab-trigger" onclick="navigateToTab('savings')">Savings Sheet</button>
-        </div>
-    </div>
-
-    <div class="app-container">
-        
         <!-- ==========================================================================
-             📌 TAB PANEL 1: SUMMARY DASHBOARD (FAST ADD Spend CHECKBOXES)
-             ========================================================================== -->
-        <div id="tabContentDashboard" class="tab-page active-page">
-            <h4>📊 Financial Position Summary Metrics Log:</h4>
-            <div class="metrics-grid">
-                <div class="metric-card income-card">
-                    <small>MONTHLY INCOME</small>
-                    <h2 id="sumIncome">₹0.00</h2>
-                </div>
-                <div class="metric-card expense-card">
-                    <small>MONTHLY EXPENSES</small>
-                    <h2 id="sumExpenses">₹0.00</h2>
-                </div>
-                <div class="metric-card savings-card">
-                    <small>MONTHLY SAVINGS</small>
-                    <h2 id="sumSavings">₹0.00</h2>
-                </div>
-                <div class="metric-card balance-card">
-                    <small>CASH BALANCE</small>
-                    <h2 id="sumCashBalance">₹0.00</h2>
-                </div>
-            </div>
-            <div class="ratio-bar-text" id="percentageSpentText">Percentage of Income Spent: 0.0000</div>
-
-            <h4 style="margin-top: 30px;">🗓️ Fast Add Spend Toggles (Select your checkboxes, then hit Add Selected below):</h4>
-            <div class="checkbox-grid">
-                <div class="check-card">
-                    <label><strong>Auto</strong> <span class="txt-red">₹40</span></label>
-                    <input type="checkbox">
-                </div>
-                <div class="check-card">
-                    <label><strong>Cig</strong> <span class="txt-red">₹70</span></label>
-                    <input type="checkbox">
-                </div>
-                <div class="check-card">
-                    <label><strong>Act Fibre</strong> <span class="txt-red">₹324</span></label>
-                    <input type="checkbox">
-                </div>
-                <div class="check-card">
-                    <label><strong>House Rent</strong> <span class="txt-red">₹8000</span></label>
-                    <input type="checkbox">
-                </div>
-                <div class="check-card">
-                    <label><strong>Rentomojo</strong> <span class="txt-red">₹707</span></label>
-                    <input type="checkbox">
-                </div>
-                <div class="check-card">
-                    <label><strong>Wishnet</strong> <span class="txt-red">₹589</span></label>
-                    <input type="checkbox">
-                </div>
-            </div>
-            <button class="btn-success" id="addSelectedBtn">➕ ADD SELECTED TRANSACTIONS</button>
-        </div>
-
-        <!-- ==========================================================================
-             ➕ TAB PANEL 2: INCOME ENTRIES PANEL
+             ➕ TAB PANEL 2: INCOME ENTRIES PANEL (FIXED CLOSURE)
              ========================================================================== -->
         <div id="tabContentincome" class="tab-page">
             <h4>Monthly Income Sheet Entries:</h4>
@@ -97,7 +250,7 @@
         </div>
 
         <!-- ==========================================================================
-             💸 TAB PANEL 3: EXPENSE ENTRIES PANEL
+             💸 TAB PANEL 3: EXPENSE ENTRIES PANEL (FIXED CLOSURE)
              ========================================================================== -->
         <div id="tabContentexpense" class="tab-page">
             <h4>Monthly Expenses Sheet Entries:</h4>
@@ -122,7 +275,7 @@
         </div>
 
         <!-- ==========================================================================
-             🐖 TAB PANEL 4: SAVINGS ENTRIES PANEL
+             🐖 TAB PANEL 4: SAVINGS ENTRIES PANEL (FIXED CLOSURE)
              ========================================================================== -->
         <div id="tabContentsavings" class="tab-page">
             <h4>Monthly Savings Sheet Entries:</h4>

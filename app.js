@@ -149,15 +149,16 @@ function commitRowItem(type) {
 
     if (!src || isNaN(amt) || amt <= 0 || !dt) return;
 
-    // date structure input splits YYYY-MM-DD cleanly
+    // Split input string (YYYY-MM-DD)
     const dateParts = dt.split('-'); 
     const year = parseInt(dateParts[0], 10);
-    const monthIndex = parseInt(dateParts[1], 10) - 1;
-    const day = parseInt(dateParts[2], 10); // FIX 2: Fixed index array mapping slot to 2 (Day)
+    const month = parseInt(dateParts[1], 10);
+    const day = parseInt(dateParts[2], 10); // FIXED: Clean reference to array index slot 2
 
-    const explicitDate = new Date(year, monthIndex, day);
+    // Create a time zone safe explicit date instance
+    const explicitDate = new Date(year, month - 1, day);
     const computedDayName = weekdayMap[explicitDate.getDay()];
-    const computedMonthLabel = `${monthlyMap[monthIndex]}-${year}`;
+    const computedMonthLabel = `${monthlyMap[month - 1]}-${year}`;
 
     let targetSheetName = type === 'expense' ? 'Expense' : (type === 'income' ? 'Income' : 'Savings');
     let selectedCategory = categorySelect ? categorySelect.value : 'Misc';
@@ -167,7 +168,7 @@ function commitRowItem(type) {
         sheetName: targetSheetName,
         source: src,
         category: selectedCategory,
-        date: `${monthIndex + 1}/${day}/${year}`, 
+        date: `${month}/${day}/${year}`, 
         day: computedDayName,
         month: computedMonthLabel,
         amount: amt
@@ -217,14 +218,13 @@ function renderTableGrids() {
         if (body) {
             let htmlBuffer = '';
             appLedger[t.key].forEach((row, index) => {
-                // FIX 1: Stripped away the string escape backslash from the row category container template literal
                 htmlBuffer += `<tr>
                     <td>${index + 1}</td>
                     <td>${row.source}</td>
                     <td>${row.category || 'Misc'}</td>
                     <td>${row.date}</td>
                     <td>${row.day || 'N/A'}</td>
-                    <td style="text-align: right; font-weight: 600;">₹${row.amount.toLocaleString('en-IN', {minimumFractionDigits:2})}</td>
+                    <td style="text-align: right; font-weight: 600;">Rh ${row.amount.toLocaleString('en-IN', {minimumFractionDigits:2})}</td>
                     <td>${row.monthLabel || ''}</td>
                     <td><button onclick="deleteRowItem('${t.key}', ${row.id})" style="background: none; border: none; color: #94a3b8; font-size: 1.1rem; cursor: pointer;">✕</button></td>
                 </tr>`;

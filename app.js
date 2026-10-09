@@ -2,7 +2,7 @@
 // PART 1: FRONTEND DATA LAYER & FIXED NAVIGATION ENGINE
 // ==========================================================================
 
-const WEB_APP_URL = "https://google.com"; 
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw3mLvI4S8jQEwu9rziObM2Xoks3Lm3tD61DMgqF1Px-uyi3Jcg768zY03PNeLuuFmkEg/exec"; 
 
 let appLedger = {
     income: [],

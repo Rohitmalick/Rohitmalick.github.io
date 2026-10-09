@@ -1,33 +1,156 @@
-<!-- Financial Summary Metric Widgets Log -->
-<div class="metrics-grid">
-    <div>Monthly Income: <span id="sumIncome">₹0.00</span></div>
-    <div>Monthly Expenses: <span id="sumExpenses">₹0.00</span></div>
-    <div>Monthly Savings: <span id="sumSavings">₹0.00</span></div>
-    <div>Cash Balance: <span id="sumCashBalance">₹0.00</span></div>
-    <div id="percentageSpentText">Percentage of Income Spent: 0.0000</div>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Budget Tracker</title>
+    <!-- Links your external style.css sheet so fonts and layouts render instantly -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-<!-- ➕ INCOME FORM TEMPLATE GRID EXAMPLE -->
-<div id="tabContentincome" class="tab-page active-page">
-    <h3>Add Income Transaction</h3>
-    <input type="text" id="incSource" placeholder="Income Source (e.g. Salary)">
-    <input type="number" id="incAmount" placeholder="Amount (₹)">
-    <input type="date" id="incDate">
-    <button onclick="commitRowItem('income')">Insert Row</button>
+    <!-- 🌐 Core Application Header & Tab Switch Toggles Menu -->
+    <div class="header-nav">
+        <h2>Personal Budget Tracker</h2>
+        <div class="nav-buttons">
+            <button id="navBtnDashboard" class="tab-trigger active-tab" onclick="navigateToTab('Dashboard')">Summary Dashboard</button>
+            <button id="navBtnincome" class="tab-trigger" onclick="navigateToTab('income')">Income Sheet</button>
+            <button id="navBtnexpense" class="tab-trigger" onclick="navigateToTab('expense')">Expense Sheet</button>
+            <button id="navBtnsavings" class="tab-trigger" onclick="navigateToTab('savings')">Savings Sheet</button>
+        </div>
+    </div>
 
-    <table>
-        <thead>
-            <tr><th>Srno.</th><th>Income Source</th><th>Date</th><th>Amount</th><th>Action</th></tr>
-        </thead>
-        <tbody id="incomeTableBody"></tbody>
-    </table>
-</div>
+    <div class="app-container">
+        
+        <!-- ==========================================================================
+             📌 TAB PANEL 1: SUMMARY DASHBOARD (FAST ADD Spend CHECKBOXES)
+             ========================================================================== -->
+        <div id="tabContentDashboard" class="tab-page active-page">
+            <h4>📊 Financial Position Summary Metrics Log:</h4>
+            <div class="metrics-grid">
+                <div class="metric-card income-card">
+                    <small>MONTHLY INCOME</small>
+                    <h2 id="sumIncome">₹0.00</h2>
+                </div>
+                <div class="metric-card expense-card">
+                    <small>MONTHLY EXPENSES</small>
+                    <h2 id="sumExpenses">₹0.00</h2>
+                </div>
+                <div class="metric-card savings-card">
+                    <small>MONTHLY SAVINGS</small>
+                    <h2 id="sumSavings">₹0.00</h2>
+                </div>
+                <div class="metric-card balance-card">
+                    <small>CASH BALANCE</small>
+                    <h2 id="sumCashBalance">₹0.00</h2>
+                </div>
+            </div>
+            <div class="ratio-bar-text" id="percentageSpentText">Percentage of Income Spent: 0.0000</div>
 
-<!-- 📂 BANK STATEMENT OFFLINE CSV FILE PARSER ELEMENT -->
-<div class="import-block">
-    <label for="bankStatementFile">Import Bank Statement (CSV File):</label>
-    <input type="file" id="bankStatementFile" accept=".csv" onchange="importBankStatementFile(event)">
-</div>
+            <h4 style="margin-top: 30px;">🗓️ Fast Add Spend Toggles (Select your checkboxes, then hit Add Selected below):</h4>
+            <div class="checkbox-grid">
+                <div class="check-card">
+                    <label><strong>Auto</strong> <span class="txt-red">₹40</span></label>
+                    <input type="checkbox">
+                </div>
+                <div class="check-card">
+                    <label><strong>Cig</strong> <span class="txt-red">₹70</span></label>
+                    <input type="checkbox">
+                </div>
+                <div class="check-card">
+                    <label><strong>Act Fibre</strong> <span class="txt-red">₹324</span></label>
+                    <input type="checkbox">
+                </div>
+                <div class="check-card">
+                    <label><strong>House Rent</strong> <span class="txt-red">₹8000</span></label>
+                    <input type="checkbox">
+                </div>
+                <div class="check-card">
+                    <label><strong>Rentomojo</strong> <span class="txt-red">₹707</span></label>
+                    <input type="checkbox">
+                </div>
+                <div class="check-card">
+                    <label><strong>Wishnet</strong> <span class="txt-red">₹589</span></label>
+                    <input type="checkbox">
+                </div>
+            </div>
+            <button class="btn-success" id="addSelectedBtn">➕ ADD SELECTED TRANSACTIONS</button>
+        </div>
 
-<!-- Load your GitHub app.js Sync Script at the very bottom -->
-<script src="app.js"></script>
+        <!-- ==========================================================================
+             ➕ TAB PANEL 2: INCOME ENTRIES PANEL
+             ========================================================================== -->
+        <div id="tabContentincome" class="tab-page">
+            <h4>Monthly Income Sheet Entries:</h4>
+            <div class="form-grid">
+                <input type="text" id="incSource" placeholder="Income Source (e.g. Salary)">
+                <input type="date" id="incDate">
+                <input type="number" id="incAmount" placeholder="Amount (₹)">
+                <button class="btn-primary" onclick="commitRowItem('income')">Insert Row</button>
+            </div>
+            <table>
+                <thead>
+                    <tr><th>Srno.</th><th>Income Source</th><th>Date</th><th>Day</th><th>Amount</th><th>Month</th><th>Action</th></tr>
+                </thead>
+                <tbody id="incomeTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- ==========================================================================
+             💸 TAB PANEL 3: EXPENSE ENTRIES PANEL
+             ========================================================================== -->
+        <div id="tabContentexpense" class="tab-page">
+            <h4>Monthly Expenses Sheet Entries:</h4>
+            <div class="form-grid">
+                <input type="text" id="expSource" placeholder="Expense Item">
+                <select id="expCategory">
+                    <option value="Misc">Misc</option>
+                    <option value="Food">Food</option>
+                    <option value="Rent">Rent</option>
+                    <option value="Bill">Bill</option>
+                </select>
+                <input type="date" id="expDate">
+                <input type="number" id="expAmount" placeholder="Amount (₹)">
+                <button class="btn-primary" onclick="commitRowItem('expense')">Insert Row</button>
+            </div>
+            <table>
+                <thead>
+                    <tr><th>Srno.</th><th>Expense Source</th><th>Category</th><th>Date</th><th>Day</th><th>Amount</th><th>Month2</th><th>Action</th></tr>
+                </thead>
+                <tbody id="expensesTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- ==========================================================================
+             🐖 TAB PANEL 4: SAVINGS ENTRIES PANEL
+             ========================================================================== -->
+        <div id="tabContentsavings" class="tab-page">
+            <h4>Monthly Savings Sheet Entries:</h4>
+            <div class="form-grid">
+                <input type="text" id="savSource" placeholder="Savings Target">
+                <input type="date" id="savDate">
+                <input type="number" id="savAmount" placeholder="Amount (₹)">
+                <button class="btn-primary" onclick="commitRowItem('savings')">Insert Row</button>
+            </div>
+            <table>
+                <thead>
+                    <tr><th>Srno.</th><th>Savings Source</th><th>Date</th><th>Day</th><th>Amount</th><th>Month</th><th>Action</th></tr>
+                </thead>
+                <tbody id="savingsTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- ==========================================================================
+             📂 GLOBAL BANK STATEMENT OFFLINE STATEMENT IMPORT ENGINE
+             ========================================================================== -->
+        <div class="import-block">
+            <label for="bankStatementFile"><strong>Import Bank Statement (CSV File):</strong></label>
+            <input type="file" id="bankStatementFile" accept=".csv" onchange="importBankStatementFile(event)">
+        </div>
+
+    </div>
+
+    <!-- Calls your structural JavaScript logic engine components -->
+    <script src="app.js"></script>
+</body>
+</html>

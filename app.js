@@ -224,7 +224,7 @@ function renderTableGrids() {
                     <td>${row.category || 'Misc'}</td>
                     <td>${row.date}</td>
                     <td>${row.day || 'N/A'}</td>
-                    <td style="text-align: right; font-weight: 600;">Rh ${row.amount.toLocaleString('en-IN', {minimumFractionDigits:2})}</td>
+                    <td style="text-align: right; font-weight: 600;">₹ ${row.amount.toLocaleString('en-IN', {minimumFractionDigits:2})}</td>
                     <td>${row.monthLabel || ''}</td>
                     <td><button onclick="deleteRowItem('${t.key}', ${row.id})" style="background: none; border: none; color: #94a3b8; font-size: 1.1rem; cursor: pointer;">✕</button></td>
                 </tr>`;

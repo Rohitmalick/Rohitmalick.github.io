@@ -2,7 +2,7 @@
 // STAGE 1: FRONTEND DATA LAYER & FIXED NAVIGATION ENGINE
 // ==========================================================================
 
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw3mLvI4S8jQEwu9rziObM2Xoks3Lm3tD61DMgqF1Px-uyi3Jcg768zY03PNeLuuFmkEg/exec"; 
+const WEB_APP_URL = "https://google.com"; 
 
 let appLedger = {
     income: [],
@@ -13,15 +13,12 @@ let appLedger = {
 const weekdayMap = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const monthlyMap = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-// 📱 FIXED TAB SWITCHING ENGINE (Matches HTML Classes Exactly)
 function navigateToTab(tabName) {
-    // 1. Hide all tab content sections
     const pages = document.getElementsByClassName('tab-page');
     for (let page of pages) { 
         page.style.display = 'none'; 
     }
     
-    // 2. Clear out the highlighted state from all navigation buttons
     const triggers = document.getElementsByClassName('tab-trigger');
     for (let trigger of triggers) { 
         trigger.classList.remove('active-tab');
@@ -29,22 +26,19 @@ function navigateToTab(tabName) {
         trigger.style.borderColor = '#cbd5e1';
     }
     
-    // 3. Display the exact selected tab contents page block
     const targetContent = document.getElementById(`tabContent${tabName}`);
     if (targetContent) {
         targetContent.style.display = 'block';
     }
     
-    // 4. Highlight the selected active navigation button layout shell
     const targetBtn = document.getElementById(`navBtn${tabName}`);
     if (targetBtn) {
         targetBtn.classList.add('active-tab');
-        targetBtn.style.backgroundColor = '#fef08a'; // Matches your beautiful yellow style reference
+        targetBtn.style.backgroundColor = '#fef08a';
         targetBtn.style.borderColor = '#eab308';
     }
 }
 
-// App Lifecycle Initialization Hook
 window.onload = function() {
     const activeCache = localStorage.getItem('__excel_budget_tracker_store');
     if (activeCache) {
@@ -70,7 +64,7 @@ function recalculateFinancials() {
     renderTableGrids();
 }
 // ==========================================================================
-// STAGE 2: FAST-ADD ENGINES & MANUAL TRANSACTION SUBMISSION CHANNELS
+// STAGE 2: FAST-ADD ENGINES & CORRECTED DATE TRACKING SYNCHRONIZER
 // ==========================================================================
 
 function setupFastAddButtonEngine() {
@@ -141,6 +135,7 @@ function setupFastAddButtonEngine() {
     }
 }
 
+// Fixed Form Submission Pipeline: Corrects the date parsing indices perfectly
 function commitRowItem(type) {
     const amountInput = document.getElementById(`${type.substring(0,3)}Amount`);
     const sourceInput = document.getElementById(`${type.substring(0,3)}Source`);
@@ -154,10 +149,11 @@ function commitRowItem(type) {
 
     if (!src || isNaN(amt) || amt <= 0 || !dt) return;
 
+    // input date structure is standard YYYY-MM-DD
     const dateParts = dt.split('-'); 
     const year = parseInt(dateParts[0], 10);
     const monthIndex = parseInt(dateParts[1], 10) - 1;
-    const day = parseInt(dateParts, 2);
+    const day = parseInt(dateParts[2], 10); // FIXED: Changed index tracking reference string to look up slot 2
 
     const explicitDate = new Date(year, monthIndex, day);
     const computedDayName = weekdayMap[explicitDate.getDay()];
@@ -169,7 +165,7 @@ function commitRowItem(type) {
         action: "insertRow",
         sheetName: targetSheetName,
         source: src,
-        category: type === 'expense' ? (document.getElementById('expCategory').value || 'Misc') : 'Income/Savings',
+        category: type === 'expense' ? (document.getElementById('expCategory').value || 'Misc') : 'Misc',
         date: `${monthIndex + 1}/${day}/${year}`, 
         day: computedDayName,
         month: computedMonthLabel,
@@ -223,7 +219,7 @@ function renderTableGrids() {
                 htmlBuffer += `<tr>
                     <td>${index + 1}</td>
                     <td>${row.source}</td>
-                    ${t.key === 'expense' ? `<td>\${row.category || 'Misc'}</td>` : ''}
+                    <td>${row.category || 'Misc'}</td>
                     <td>${row.date}</td>
                     <td>${row.day || 'N/A'}</td>
                     <td style="text-align: right; font-weight: 600;">₹${row.amount.toLocaleString('en-IN', {minimumFractionDigits:2})}</td>

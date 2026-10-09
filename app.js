@@ -1,7 +1,6 @@
 // ==========================================================================
-// PART 1: FRONTEND DATA LAYER & FIXED NAVIGATION ENGINE
+// UNIFIED FRONTEND DATA LAYER & PARAMETER DISPATCH SYNC PIPELINE
 // ==========================================================================
-
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw3mLvI4S8jQEwu9rziObM2Xoks3Lm3tD61DMgqF1Px-uyi3Jcg768zY03PNeLuuFmkEg/exec"; 
 
 let appLedger = {
@@ -15,9 +14,7 @@ const monthlyMap = ['January', 'February', 'March', 'April', 'May', 'June', 'Jul
 
 function navigateToTab(tabName) {
     const pages = document.getElementsByClassName('tab-page');
-    for (let page of pages) { 
-        page.style.display = 'none'; 
-    }
+    for (let page of pages) { page.style.display = 'none'; }
     
     const triggers = document.getElementsByClassName('tab-trigger');
     for (let trigger of triggers) { 
@@ -27,9 +24,7 @@ function navigateToTab(tabName) {
     }
     
     const targetContent = document.getElementById(`tabContent${tabName}`);
-    if (targetContent) {
-        targetContent.style.display = 'block';
-    }
+    if (targetContent) targetContent.style.display = 'block';
     
     const targetBtn = document.getElementById(`navBtn${tabName}`);
     if (targetBtn) {
@@ -63,9 +58,6 @@ function recalculateFinancials() {
 
     renderTableGrids();
 }
-// ==========================================================================
-// PART 2: FIXED SUMMARY SHEET FAST-ADD TOGGLE ROUTING SYSTEM
-// ==========================================================================
 
 function setupFastAddButtonEngine() {
     const mainAddBtn = document.getElementById('addSelectedBtn');
@@ -96,7 +88,7 @@ function setupFastAddButtonEngine() {
                 if (rawAmount > 0) {
                     let payload = {
                         action: "insertRow",
-                        sheetName: "Summary", // ✨ FIXED: Changed target routing from "Expense" to "Summary"
+                        sheetName: "Expense",
                         source: sourceName,
                         category: (sourceName === "House Rent" || sourceName === "Rentomojo") ? "Rent" : "Bill",
                         date: payloadDateStr,
@@ -110,7 +102,6 @@ function setupFastAddButtonEngine() {
                         mode: "no-cors",
                         body: JSON.stringify(payload)
                     }).then(() => {
-                        // Keeps local calculation integrity updated on the UI model
                         appLedger.expense.push({
                             id: Date.now() + Math.random(),
                             source: payload.source,
@@ -127,7 +118,7 @@ function setupFastAddButtonEngine() {
             });
 
             Promise.all(promises).then(() => {
-                alert("Selected fast transactions pushed securely to Summary sheet!");
+                alert("Selected fast transactions pushed securely to cloud!");
                 recalculateFinancials();
                 mainAddBtn.disabled = false;
                 mainAddBtn.innerText = "➕ ADD SELECTED TRANSACTIONS";

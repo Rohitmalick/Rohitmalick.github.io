@@ -28,7 +28,6 @@
             border: 1px solid #e2e8f0;
         }
 
-        /* 🌐 Clean Blue Header Row Layout */
         .top-navbar {
             background-color: #bfdbfe;
             border-radius: 8px;
@@ -75,7 +74,6 @@
             display: block;
         }
 
-        /* 📊 Border-Colored Metrics Grid Cards Layout */
         .metrics-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -111,7 +109,6 @@
             color: #0f172a;
         }
 
-        /* 🗓️ Grey Border Fast Add Toggle Cards Layout */
         .checkbox-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -153,7 +150,6 @@
             cursor: pointer;
         }
 
-        /* 🟢 Bright Green Submission Button Layout */
         .btn-success {
             background-color: #10b981;
             color: white;
@@ -177,13 +173,14 @@
 
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) auto;
+            grid-template-columns: 2fr 1fr 1.2fr 1.2fr 1fr;
             gap: 12px;
             background: #f8fafc;
             padding: 16px;
             border-radius: 8px;
             margin: 16px 0;
             border: 1px solid #e2e8f0;
+            align-items: center;
         }
 
         input, select {
@@ -194,9 +191,21 @@
             font-size: 0.9rem;
             outline: none;
             background: white;
+            height: 42px;
         }
 
-        .btn-primary { background: #2563eb; color: white; border: none; font-weight: 600; padding: 10px 24px; border-radius: 6px; cursor: pointer;}
+        .btn-primary { 
+            background: #2563eb; 
+            color: white; 
+            border: none; 
+            font-weight: 600; 
+            padding: 10px 24px; 
+            border-radius: 6px; 
+            cursor: pointer;
+            height: 42px;
+            font-size: 0.9rem;
+        }
+        .btn-primary:hover { background: #1d4ed8; }
         
         table {
             width: 100%;
@@ -208,23 +217,24 @@
             background: #f1f5f9;
             color: #475569;
             text-align: left;
-            padding: 10px;
-            font-size: 0.8rem;
+            padding: 12px 10px;
+            font-size: 0.85rem;
             font-weight: 600;
             border-bottom: 2px solid #e2e8f0;
         }
 
         td {
-            padding: 10px;
+            padding: 12px 10px;
             border-bottom: 1px solid #e2e8f0;
             font-size: 0.85rem;
+            color: #334155;
         }
+        tr:hover { background-color: #f8fafc; }
     </style>
 </head>
 <body>
     <div class="main-wrapper">
 
-        <!-- 🌐 Top Header Navigation Bar Block -->
         <div class="top-navbar">
             <h2>Personal Budget Tracker</h2>
             <div class="tab-menu">
@@ -235,12 +245,9 @@
             </div>
         </div>
         
-        <!-- ==========================================================================
-             📌 TAB PANEL 1: SUMMARY DASHBOARD (FAST ADD Spend CHECKBOXES)
-             ========================================================================== -->
+        <!-- 📌 TAB PANEL 1: SUMMARY DASHBOARD -->
         <div id="tabContentDashboard" class="tab-page active-page">
-            <h4 style="font-size: 0.9rem; font-weight: 600; color: #475569; display: flex; align-items: center; gap: 6px;">📊 Financial Position Summary Metrics Log:</h4>
-            
+            <h4 style="font-size: 0.9rem; font-weight: 600; color: #475569;">📊 Financial Position Summary Metrics Log:</h4>
             <div class="metrics-grid">
                 <div class="metric-card card-inc">
                     <small>MONTHLY INCOME</small>
@@ -262,7 +269,6 @@
             <div id="percentageSpentText" style="margin-bottom: 24px; font-size: 0.85rem; color: #64748b; font-weight: 500;">Percentage of Income Spent: 0.0000</div>
 
             <h4 style="font-size: 0.9rem; font-weight: 600; color: #475569;">🗓️ Fast Add Spend Toggles (Select your checkboxes, then hit Add Selected below):</h4>
-            
             <div class="checkbox-grid">
                 <div class="check-card">
                     <label><strong>Auto</strong> <span class="txt-red">-₹40</span></label>
@@ -289,33 +295,43 @@
                     <input type="checkbox">
                 </div>
             </div>
-            
             <button class="btn-success" id="addSelectedBtn">➕ ADD SELECTED TRANSACTIONS</button>
         </div>
-        <!-- ==========================================================================
-             ➕ TAB PANEL 2: INCOME ENTRIES PANEL
-             ========================================================================== -->
+
+        <!-- ➕ TAB PANEL 2: INCOME ENTRIES PANEL (NOW EXACT MATCH COLS) -->
         <div id="tabContentincome" class="tab-page">
-            <h4 style="font-size: 0.9rem; font-weight: 600;">Monthly Income Sheet Entries:</h4>
+            <h4 style="font-size: 0.9rem; font-weight: 600; color: #475569;">Monthly Income Sheet Entries:</h4>
             <div class="form-grid">
                 <input type="text" id="incSource" placeholder="Income Source (e.g. Salary)">
+                <select id="incCategory">
+                    <option value="Active">Active</option>
+                    <option value="Passive">Passive</option>
+                    <option value="Bonus">Bonus</option>
+                    <option value="Misc">Misc</option>
+                </select>
                 <input type="date" id="incDate">
                 <input type="number" id="incAmount" placeholder="Amount (₹)">
                 <button class="btn-primary" onclick="commitRowItem('income')">Insert Row</button>
             </div>
             <table>
                 <thead>
-                    <tr><th>Srno.</th><th>Income Source</th><th>Date</th><th>Day</th><th>Amount</th><th>Month</th><th>Action</th></tr>
+                    <tr>
+                        <th>Srno.</th>
+                        <th>Income Source</th>
+                        <th>Category</th>
+                        <th>Date</th>
+                        <th style="color: #2563eb;">Day</th>
+                        <th>Amount</th>
+                        <th>Month</th>
+                        <th>Action</th>
+                    </tr>
                 </thead>
                 <tbody id="incomeTableBody"></tbody>
             </table>
         </div>
-
-        <!-- ==========================================================================
-             💸 TAB PANEL 3: EXPENSE ENTRIES PANEL
-             ========================================================================== -->
+        <!-- 💸 TAB PANEL 3: EXPENSE ENTRIES PANEL -->
         <div id="tabContentexpense" class="tab-page">
-            <h4 style="font-size: 0.9rem; font-weight: 600;">Monthly Expenses Sheet Entries:</h4>
+            <h4 style="font-size: 0.9rem; font-weight: 600; color: #475569;">Monthly Expenses Sheet Entries:</h4>
             <div class="form-grid">
                 <input type="text" id="expSource" placeholder="Expense Item">
                 <select id="expCategory">
@@ -323,6 +339,8 @@
                     <option value="Food">Food</option>
                     <option value="Rent">Rent</option>
                     <option value="Bill">Bill</option>
+                    <option value="Transport">Transport</option>
+                    <option value="Entertainment">Entertainment</option>
                 </select>
                 <input type="date" id="expDate">
                 <input type="number" id="expAmount" placeholder="Amount (₹)">
@@ -330,26 +348,48 @@
             </div>
             <table>
                 <thead>
-                    <tr><th>Srno.</th><th>Expense Source</th><th>Category</th><th>Date</th><th>Day</th><th>Amount</th><th>Month2</th><th>Action</th></tr>
+                    <tr>
+                        <th>Srno.</th>
+                        <th>Expense Source</th>
+                        <th>Category</th>
+                        <th>Date</th>
+                        <th style="color: #2563eb;">Day</th>
+                        <th>Amount</th>
+                        <th>Month2</th>
+                        <th>Action</th>
+                    </tr>
                 </thead>
                 <tbody id="expensesTableBody"></tbody>
             </table>
         </div>
 
-        <!-- ==========================================================================
-             🐖 TAB PANEL 4: SAVINGS ENTRIES PANEL
-             ========================================================================== -->
+        <!-- 🐖 TAB PANEL 4: SAVINGS ENTRIES PANEL (NOW EXACT MATCH COLS) -->
         <div id="tabContentsavings" class="tab-page">
-            <h4 style="font-size: 0.9rem; font-weight: 600;">Monthly Savings Sheet Entries:</h4>
+            <h4 style="font-size: 0.9rem; font-weight: 600; color: #475569;">Monthly Savings Sheet Entries:</h4>
             <div class="form-grid">
                 <input type="text" id="savSource" placeholder="Savings Target">
+                <select id="savCategory">
+                    <option value="Emergency">Emergency</option>
+                    <option value="Investment">Investment</option>
+                    <option value="Goal">Goal</option>
+                    <option value="Misc">Misc</option>
+                </select>
                 <input type="date" id="savDate">
                 <input type="number" id="savAmount" placeholder="Amount (₹)">
                 <button class="btn-primary" onclick="commitRowItem('savings')">Insert Row</button>
             </div>
             <table>
                 <thead>
-                    <tr><th>Srno.</th><th>Savings Source</th><th>Date</th><th>Day</th><th>Amount</th><th>Month</th><th>Action</th></tr>
+                    <tr>
+                        <th>Srno.</th>
+                        <th>Savings Source</th>
+                        <th>Category</th>
+                        <th>Date</th>
+                        <th style="color: #2563eb;">Day</th>
+                        <th>Amount</th>
+                        <th>Month</th>
+                        <th>Action</th>
+                    </tr>
                 </thead>
                 <tbody id="savingsTableBody"></tbody>
             </table>

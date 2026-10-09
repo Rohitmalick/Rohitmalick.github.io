@@ -1,70 +1,5 @@
 // ==========================================================================
-// PART 1: FRONTEND DATA LAYER & FIXED NAVIGATION ENGINE
-// ==========================================================================
-
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw3mLvI4S8jQEwu9rziObM2Xoks3Lm3tD61DMgqF1Px-uyi3Jcg768zY03PNeLuuFmkEg/exec"; 
-
-let appLedger = {
-    income: [],
-    savings: [],
-    expense: []
-};
-
-const weekdayMap = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const monthlyMap = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
-function navigateToTab(tabName) {
-    const pages = document.getElementsByClassName('tab-page');
-    for (let page of pages) { 
-        page.style.display = 'none'; 
-    }
-    
-    const triggers = document.getElementsByClassName('tab-trigger');
-    for (let trigger of triggers) { 
-        trigger.classList.remove('active-tab');
-        trigger.style.backgroundColor = 'white';
-        trigger.style.borderColor = '#cbd5e1';
-    }
-    
-    const targetContent = document.getElementById(`tabContent${tabName}`);
-    if (targetContent) {
-        targetContent.style.display = 'block';
-    }
-    
-    const targetBtn = document.getElementById(`navBtn${tabName}`);
-    if (targetBtn) {
-        targetBtn.classList.add('active-tab');
-        targetBtn.style.backgroundColor = '#fef08a';
-        targetBtn.style.borderColor = '#eab308';
-    }
-}
-
-window.onload = function() {
-    const activeCache = localStorage.getItem('__excel_budget_tracker_store');
-    if (activeCache) {
-        try { appLedger = JSON.parse(activeCache); } catch (e) { console.error(e); }
-    }
-    recalculateFinancials();
-    setupFastAddButtonEngine(); 
-};
-
-function recalculateFinancials() {
-    localStorage.setItem('__excel_budget_tracker_store', JSON.stringify(appLedger));
-
-    const totalIncome = appLedger.income.reduce((sum, r) => sum + r.amount, 0);
-    const totalExpenses = appLedger.expense.reduce((sum, r) => sum + r.amount, 0);
-    const totalSavings = appLedger.savings.reduce((sum, r) => sum + r.amount, 0);
-    const cashBalance = totalIncome - totalExpenses - totalSavings;
-
-    document.getElementById('sumIncome').innerText = '₹' + totalIncome.toLocaleString('en-IN', {minimumFractionDigits: 2});
-    document.getElementById('sumExpenses').innerText = '₹' + totalExpenses.toLocaleString('en-IN', {minimumFractionDigits: 2});
-    document.getElementById('sumSavings').innerText = '₹' + totalSavings.toLocaleString('en-IN', {minimumFractionDigits: 2});
-    document.getElementById('sumCashBalance').innerText = '₹' + cashBalance.toLocaleString('en-IN', {minimumFractionDigits: 2});
-
-    renderTableGrids();
-}
-// ==========================================================================
-// PART 2: FAST-ADD MECHANICS & FIXES FOR IND-RUPEE SYMBOL RENDERING
+// PART 2: FAST-ADD MECHANICS & FIXES FOR EMBEDDED VARIABLE RENDERING
 // ==========================================================================
 
 function setupFastAddButtonEngine() {
@@ -187,7 +122,7 @@ function commitRowItem(type) {
             category: payload.category,
             date: payload.date,
             day: computedDayName,
-            monthLabel: computedMonthLabel,
+            monthLabel: payload.month,
             amount: amt
         });
 
@@ -216,7 +151,6 @@ function renderTableGrids() {
         if (body) {
             let htmlBuffer = '';
             appLedger[t.key].forEach((row, index) => {
-                // FIXED: Changed display tracking output text symbol label cleanly from Rh to ₹
                 htmlBuffer += `<tr>
                     <td>${index + 1}</td>
                     <td>${row.source}</td>
@@ -231,4 +165,69 @@ function renderTableGrids() {
             body.innerHTML = htmlBuffer;
         }
     });
+}
+// ==========================================================================
+// PART 1: FRONTEND DATA LAYER & FIXED NAVIGATION ENGINE
+// ==========================================================================
+
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw3mLvI4S8jQEwu9rziObM2Xoks3Lm3tD61DMgqF1Px-uyi3Jcg768zY03PNeLuuFmkEg/exec"; 
+
+let appLedger = {
+    income: [],
+    savings: [],
+    expense: []
+};
+
+const weekdayMap = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const monthlyMap = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+function navigateToTab(tabName) {
+    const pages = document.getElementsByClassName('tab-page');
+    for (let page of pages) { 
+        page.style.display = 'none'; 
+    }
+    
+    const triggers = document.getElementsByClassName('tab-trigger');
+    for (let trigger of triggers) { 
+        trigger.classList.remove('active-tab');
+        trigger.style.backgroundColor = 'white';
+        trigger.style.borderColor = '#cbd5e1';
+    }
+    
+    const targetContent = document.getElementById(`tabContent${tabName}`);
+    if (targetContent) {
+        targetContent.style.display = 'block';
+    }
+    
+    const targetBtn = document.getElementById(`navBtn${tabName}`);
+    if (targetBtn) {
+        targetBtn.classList.add('active-tab');
+        targetBtn.style.backgroundColor = '#fef08a';
+        targetBtn.style.borderColor = '#eab308';
+    }
+}
+
+window.onload = function() {
+    const activeCache = localStorage.getItem('__excel_budget_tracker_store');
+    if (activeCache) {
+        try { appLedger = JSON.parse(activeCache); } catch (e) { console.error(e); }
+    }
+    recalculateFinancials();
+    setupFastAddButtonEngine(); 
+};
+
+function recalculateFinancials() {
+    localStorage.setItem('__excel_budget_tracker_store', JSON.stringify(appLedger));
+
+    const totalIncome = appLedger.income.reduce((sum, r) => sum + r.amount, 0);
+    const totalExpenses = appLedger.expense.reduce((sum, r) => sum + r.amount, 0);
+    const totalSavings = appLedger.savings.reduce((sum, r) => sum + r.amount, 0);
+    const cashBalance = totalIncome - totalExpenses - totalSavings;
+
+    document.getElementById('sumIncome').innerText = '₹' + totalIncome.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    document.getElementById('sumExpenses').innerText = '₹' + totalExpenses.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    document.getElementById('sumSavings').innerText = '₹' + totalSavings.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    document.getElementById('sumCashBalance').innerText = '₹' + cashBalance.toLocaleString('en-IN', {minimumFractionDigits: 2});
+
+    renderTableGrids();
 }

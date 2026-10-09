@@ -1,5 +1,5 @@
 // ==========================================================================
-// STAGE 1: FRONTEND DATA LAYER & FIXED NAVIGATION ENGINE
+// PART 1: FRONTEND DATA LAYER & FIXED NAVIGATION ENGINE
 // ==========================================================================
 
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw3mLvI4S8jQEwu9rziObM2Xoks3Lm3tD61DMgqF1Px-uyi3Jcg768zY03PNeLuuFmkEg/exec"; 
@@ -64,7 +64,7 @@ function recalculateFinancials() {
     renderTableGrids();
 }
 // ==========================================================================
-// STAGE 2: FAST-ADD ENGINES & CORRECTED DATE TRACKING SYNCHRONIZER
+// PART 2: FAST-ADD MECHANICS & FIXES FOR EMBEDDED VARIABLE RENDERING
 // ==========================================================================
 
 function setupFastAddButtonEngine() {
@@ -135,11 +135,11 @@ function setupFastAddButtonEngine() {
     }
 }
 
-// Fixed Form Submission Pipeline: Corrects the date parsing indices perfectly
 function commitRowItem(type) {
     const amountInput = document.getElementById(`${type.substring(0,3)}Amount`);
     const sourceInput = document.getElementById(`${type.substring(0,3)}Source`);
     const dateInput = document.getElementById(`${type.substring(0,3)}Date`);
+    const categorySelect = document.getElementById(`${type.substring(0,3)}Category`);
 
     if (!amountInput || !sourceInput || !dateInput) { console.error("DOM form fields parsing mismatch."); return; }
 
@@ -149,23 +149,24 @@ function commitRowItem(type) {
 
     if (!src || isNaN(amt) || amt <= 0 || !dt) return;
 
-    // input date structure is standard YYYY-MM-DD
+    // date structure input splits YYYY-MM-DD cleanly
     const dateParts = dt.split('-'); 
     const year = parseInt(dateParts[0], 10);
     const monthIndex = parseInt(dateParts[1], 10) - 1;
-    const day = parseInt(dateParts[2], 10); // FIXED: Changed index tracking reference string to look up slot 2
+    const day = parseInt(dateParts[2], 10); // FIX 2: Fixed index array mapping slot to 2 (Day)
 
     const explicitDate = new Date(year, monthIndex, day);
     const computedDayName = weekdayMap[explicitDate.getDay()];
     const computedMonthLabel = `${monthlyMap[monthIndex]}-${year}`;
 
     let targetSheetName = type === 'expense' ? 'Expense' : (type === 'income' ? 'Income' : 'Savings');
+    let selectedCategory = categorySelect ? categorySelect.value : 'Misc';
 
     let payload = {
         action: "insertRow",
         sheetName: targetSheetName,
         source: src,
-        category: type === 'expense' ? (document.getElementById('expCategory').value || 'Misc') : 'Misc',
+        category: selectedCategory,
         date: `${monthIndex + 1}/${day}/${year}`, 
         day: computedDayName,
         month: computedMonthLabel,
@@ -216,6 +217,7 @@ function renderTableGrids() {
         if (body) {
             let htmlBuffer = '';
             appLedger[t.key].forEach((row, index) => {
+                // FIX 1: Stripped away the string escape backslash from the row category container template literal
                 htmlBuffer += `<tr>
                     <td>${index + 1}</td>
                     <td>${row.source}</td>

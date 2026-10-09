@@ -1,3 +1,10 @@
+// ==========================================================================
+// STAGE 1: FRONTEND DATA MODEL, STATE ENGINES, AND METRIC ANALYTICS
+// ==========================================================================
+
+// ⚠️ PASTE YOUR COPIED GOOGLE APPS SCRIPT WEB APP URL BETWEEN THESE QUOTES:
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw3mLvI4S8jQEwu9rziObM2Xoks3Lm3tD61DMgqF1Px-uyi3Jcg768zY03PNeLuuFmkEg/exec"; 
+
 // Local Database Blueprint State Store arrays
 let appLedger = {
     income: [],
@@ -17,22 +24,23 @@ function navigateToTab(tabName) {
     for (let trigger of triggers) { trigger.classList.remove('active-tab'); }
     
     document.getElementById(`tabContent${tabName}`).classList.add('active-page');
-    document.getElementById(`navBtn${tabName}`).classList.add('active-nav');
+    document.getElementById(`navBtn${tabName}`).classList.add('active-tab');
 }
 
-// App Lifecyle Initialization Hook
+// App Lifecycle Initialization Hook
 window.onload = function() {
     const activeCache = localStorage.getItem('__excel_budget_tracker_store');
     if (activeCache) {
         try {
             appLedger = JSON.parse(activeCache);
         } catch (e) {
-            console.error("Stack overflow initializing browser database model caches.");
+            console.error("Error initializing browser database cache.");
         }
     }
     recalculateFinancials();
 };
 
+// Summary Metric Calculation Engine
 function recalculateFinancials() {
     localStorage.setItem('__excel_budget_tracker_store', JSON.stringify(appLedger));
 
@@ -51,7 +59,11 @@ function recalculateFinancials() {
 
     renderTableGrids();
 }
+// ==========================================================================
+// STAGE 2: NETWORK SYNC PIPELINE, FILE IMPORT PARSER, AND GRID UI RENDERERS
+// ==========================================================================
 
+// Submits single manual transaction entries straight to Google Sheets Database
 function commitRowItem(type) {
     const amountInput = document.getElementById(`${type.substring(0,3)}Amount`);
     const sourceInput = document.getElementById(`${type.substring(0,3)}Source`);
@@ -64,16 +76,19 @@ function commitRowItem(type) {
     if (!src || isNaN(amt) || amt <= 0 || !dt) return;
 
     const dateParts = dt.split('-'); 
-    const year = parseInt(dateParts[0], 10);
-    const monthIndex = parseInt(dateParts[1], 10) - 1;
-    const day = parseInt(dateParts[2], 10);
+    const year = parseInt(dateParts, 10);
+    const monthIndex = parseInt(dateParts, 10) - 1;
+    const day = parseInt(dateParts, 10);
 
     const explicitDate = new Date(year, monthIndex, day);
     const computedDayName = weekdayMap[explicitDate.getDay()];
     const computedMonthLabel = `${monthlyMap[monthIndex]}-${year}`;
 
+    let targetSheetName = type === 'expense' ? 'Expense' : (type === 'income' ? 'Income' : 'Savings');
+
     let payload = {
-        id: Date.now(),
+        action: "insertRow",
+        sheetName: targetSheetName,
         source: src,
         date: `${monthIndex + 1}/${day}/${year}`, 
         amount: amt
@@ -82,24 +97,55 @@ function commitRowItem(type) {
     if (type === 'expense') {
         payload.category = document.getElementById('expCategory').value.trim() || 'Misc';
         payload.day = computedDayName;
-        payload.monthLabel = computedMonthLabel;
+        payload.month = computedMonthLabel;
         
         const categoryInput = document.getElementById('expCategory');
         if (categoryInput) categoryInput.value = '';
     }
 
-    appLedger[type].push(payload);
+    const saveButton = document.querySelector(`[onclick="commitRowItem('${type}')"]`);
+    if(saveButton) { saveButton.disabled = true; saveButton.innerText = "Syncing..."; }
 
-    amountInput.value = '';
-    sourceInput.value = '';
-    dateInput.value = '';
+    // Execute Cross-Origin Network Fetch Request Pipeline
+    fetch(WEB_APP_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    })
+    .then(() => {
+        let localPayload = {
+            id: Date.now(),
+            source: src,
+            date: payload.date,
+            amount: amt
+        };
+        if (type === 'expense') {
+            localPayload.category = payload.category;
+            localPayload.day = payload.day;
+            localPayload.monthLabel = payload.month;
+        }
 
-    recalculateFinancials();
+        appLedger[type].push(localPayload);
+
+        amountInput.value = '';
+        sourceInput.value = '';
+        dateInput.value = '';
+
+        recalculateFinancials();
+    })
+    .catch(error => {
+        console.error("Cloud synchronization failure:", error);
+        alert("Failed to sync. Transaction saved locally instead.");
+    })
+    .finally(() => {
+        if(saveButton) { saveButton.disabled = false; saveButton.innerText = "Insert Row"; }
+    });
 }
 
-// 📂 TIMEZONE-SAFE BANK STATEMENT PARSER ENGINE
+// Timezone-Safe Bank Statement File Parsing Upload System
 function importBankStatementFile(event) {
-    const file = event.target.files[0];
+    const file = event.target.files;
     if (!file) return;
 
     const reader = new FileReader();
@@ -112,9 +158,8 @@ function importBankStatementFile(event) {
             const line = lines[i].trim();
             if (!line) continue;
 
-            const columns = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+            const columns = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*\$)/);
             if (columns.length >= 3) {
-                // FIXED: Added precise bracket array indices to prevent compilation crashing
                 const rawDescription = columns[0].replace(/"/g, '').trim();
                 const rawDateStr = columns[1].trim();
                 const rawAmount = parseFloat(columns[2].replace(/[^0-9.]/g, ''));
@@ -132,21 +177,40 @@ function importBankStatementFile(event) {
                         }
 
                         const generatedDate = new Date(year, month - 1, day);
-                        appLedger.expense.push({
-                            id: Date.now() + i,
+                        
+                        let payload = {
+                            action: "insertRow",
+                            sheetName: "Expense",
                             source: rawDescription,
                             category: "Imported",
                             date: `${month}/${day}/${year}`,
                             day: weekdayMap[generatedDate.getDay()],
-                            monthLabel: `${monthlyMap[month - 1]}-${year}`,
+                            month: `${monthlyMap[month - 1]}-${year}`,
                             amount: rawAmount
+                        };
+
+                        fetch(WEB_APP_URL, {
+                            method: "POST",
+                            mode: "no-cors",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(payload)
+                        });
+
+                        appLedger.expense.push({
+                            id: Date.now() + i,
+                            source: payload.source,
+                            category: payload.category,
+                            date: payload.date,
+                            day: payload.day,
+                            monthLabel: payload.month,
+                            amount: payload.amount
                         });
                         count++;
                     }
                 }
             }
         }
-        alert(`Successfully imported ${count} statement expense rows offline!`);
+        alert(`Successfully imported ${count} statement expense rows offline and queued cloud synchronization!`);
         document.getElementById('bankStatementFile').value = '';
         recalculateFinancials();
     };
@@ -157,111 +221,33 @@ function deleteRowItem(type, targetId) {
     appLedger[type] = appLedger[type].filter(item => item.id !== targetId);
     recalculateFinancials();
 }
+
+// High-speed Data Display Grid UI Renderers with string memory buffering
 function renderTableGrids() {
     const savBody = document.getElementById('savingsTableBody'); 
     if (savBody) {
-        savBody.innerHTML = '';
+        let htmlBuffer = '';
         appLedger.savings.forEach((row, index) => {
-            savBody.innerHTML += `<tr><td>${index + 1}</td><td>${row.source}</td><td>${row.date}</td><td class="txt-right">₹${row.amount.toLocaleString('en-IN')}</td><td><button onclick="deleteRowItem('savings', ${row.id})" class="del-cross">✕</button></td></tr>`;
+            htmlBuffer += `<tr><td>${index + 1}</td><td>${row.source}</td><td>${row.date}</td><td class="txt-right">₹${row.amount.toLocaleString('en-IN')}</td><td><button onclick="deleteRowItem('savings', ${row.id})" class="del-cross">✕</button></td></tr>`;
         });
+        savBody.innerHTML = htmlBuffer;
     }
 
     const expBody = document.getElementById('expensesTableBody'); 
     if (expBody) {
-        expBody.innerHTML = '';
+        let htmlBuffer = '';
         appLedger.expense.forEach((row, index) => {
-            expBody.innerHTML += `<tr><td>${index + 1}</td><td>${row.source}</td><td>${row.category}</td><td>${row.date}</td><td>${row.day}</td><td class="txt-right">₹${row.amount.toLocaleString('en-IN')}</td><td>${row.monthLabel}</td><td><button onclick="deleteRowItem('expense', ${row.id})" class="del-cross">✕</button></td></tr>`;
+            htmlBuffer += `<tr><td>${index + 1}</td><td>${row.source}</td><td>${row.category}</td><td>${row.date}</td><td>${row.day}</td><td class="txt-right">₹${row.amount.toLocaleString('en-IN')}</td><td>${row.monthLabel}</td><td><button onclick="deleteRowItem('expense', ${row.id})" class="del-cross">✕</button></td></tr>`;
         });
+        expBody.innerHTML = htmlBuffer;
     }
 
     const incBody = document.getElementById('incomeTableBody'); 
     if (incBody) {
-        incBody.innerHTML = '';
+        let htmlBuffer = '';
         appLedger.income.forEach((row, index) => {
-            incBody.innerHTML += `<tr><td>${index + 1}</td><td>${row.source}</td><td>${row.date}</td><td class="txt-right">₹${row.amount.toLocaleString('en-IN')}</td><td><button onclick="deleteRowItem('income', ${row.id})" class="del-cross">✕</button></td></tr>`;
+            htmlBuffer += `<tr><td>${index + 1}</td><td>${row.source}</td><td>${row.date}</td><td class="txt-right">₹${row.amount.toLocaleString('en-IN')}</td><td><button onclick="deleteRowItem('income', ${row.id})" class="del-cross">✕</button></td></tr>`;
         });
-    }
-}
-
-// ==========================================================================
-// CORRECTED EXCEL SPREADSHEET MATRIX GENERATOR (Fixed Variable Reference)
-// ==========================================================================
-function downloadExcelSpreadsheet() {
-    let csv = "";
-    
-    const incomeTotal = appLedger.income.reduce((sum, r) => sum + r.amount, 0);
-    const expenseTotal = appLedger.expense.reduce((sum, r) => sum + r.amount, 0);
-    const totalSavings = appLedger.savings.reduce((sum, r) => sum + r.amount, 0);
-    const cashBalance = incomeTotal - expenseTotal - totalSavings;
-    const spentRatio = incomeTotal > 0 ? (expenseTotal / incomeTotal) : 0;
-    const inverseRatio = incomeTotal > 0 ? (1 - spentRatio) : 0;
-
-    csv += ",,,,,,,,,,,,,,,,,,,,,,,\n";
-    csv += ",Personal Budger Tracker,,,,,,,,,,,,,,,,,,,,,,\n";
-    csv += ",,,,,,,,,,,,,,,,,,,,,,,\n";
-    csv += `,Percentage of Income Spent :,,,SUMMARY :,,,,,,,,,,,,,,,,,,,\n`;
-    csv += `,${spentRatio},,,,,,,,,,,,,,,,,,,,,,,\n`;
-    csv += `,,,,Monthly Income :,,,,,,,,,,,,,,,,,,,${incomeTotal}\n`;
-    csv += `,,,,${inverseRatio},,,,,,,,,,,,,,,,,,,${spentRatio}\n`;
-    csv += ",,,,,,,,,,,,,,,,,,,,,,,\n";
-    csv += `,,,,Monthly Expenses :,,,,,,,,,,,,,,,,,,,\n`;
-    csv += `,,,,${expenseTotal}\n`;
-    csv += ",,,,,,,,,,,,,,,,,,,,,,,\n";
-    csv += `,,,,Monthly Savings :,,,,,,,,,,,,,,,,,,,\n`;
-    csv += `,,,,${totalSavings}\n`;
-    csv += ",,,,,,,,,,,,,,,,,,,,,,,\n";
-    csv += `,,,,Cash Balance :,,,,,,,,,,,,,,,,,,,\n`;
-    csv += `,,,,${cashBalance}\n`;
-    csv += ",,,,\n";
-
-    // AREA 2: WEALTH ACCUMULATION REGISTER STACK
-    csv += ",Personal Budger Tracker,,,\n,,,,\n,Monthly Expenses :,,,\n,,,,\n";
-    csv += ",Srno.,Savings Source,Date,Amount\n";
-    appLedger.savings.forEach((row, idx) => {
-        csv += `,${idx + 1},${row.source},${row.date},${row.amount}\n`;
-    });
-    csv += ",,,,,,,\n";
-
-    // AREA 3: CATEGORIZED SPENDING MATRIX ROW REGISTER
-    csv += ",Personal Budger Tracker,,,, bridge,\n,,,,,,,\n,Monthly Expenses :,,,,,,\n,,,,,,,\n";
-    csv += ",Srno.,Expense Source,Category,Date,Day,Amount,Month2\n";
-    
-    let pivotTable = {};
-    appLedger.expense.forEach((row, idx) => {
-        csv += `,${idx + 1},${row.source},${row.category},${row.date},${row.day},${row.amount},${row.monthLabel}\n`;
-        if (!pivotTable[row.monthLabel]) pivotTable[row.monthLabel] = 0;
-        pivotTable[row.monthLabel] += row.amount;
-    });
-    csv += ",,,,,,,\n,,,,,,,\n";
-
-    // PIVOT SUMMARY REPLICATION LAYER
-    csv += "Row Labels,Sum of Amount,,,,,\n";
-    for (let m in pivotTable) {
-        csv += `"${m}",${pivotTable[m]},,,,,\n`;
-    }
-    csv += `Grand Total,${expenseTotal},,,,,\n`;
-    csv += ",,,,\n";
-
-    // AREA 4: REVENUE INCOME STACK REGISTERS
-    csv += ",Personal Budger Tracker,,,\n,,,,\n,Monthly Income :,,,\n,,,,\n";
-    csv += ",Srno.,Income Source,Date,Amount\n";
-    appLedger.income.forEach((row, idx) => {
-        csv += `,${idx + 1},${row.source},${row.date},${row.amount}\n`;
-    });
-
-    const universalUri = "data:text/csv;charset=utf-8," + encodeURIComponent(csv);
-    const trigger = document.createElement("a");
-    trigger.setAttribute("href", universalUri);
-    trigger.setAttribute("download", "Expense_Tracker_Export.csv");
-    document.body.appendChild(trigger);
-    trigger.click();
-    document.body.removeChild(trigger);
-}
-
-function clearApplicationState() {
-    if (confirm("Wipe sheet databases? All data cache logs will be cleared.")) {
-        localStorage.removeItem('__excel_budget_tracker_store');
-        appLedger = { income: [], savings: [], expense: [] };
-        recalculateFinancials();
+        incBody.innerHTML = htmlBuffer;
     }
 }
